@@ -15,7 +15,7 @@ func ConnectDB() (*pgxpool.Pool, error) {
 	dbUser := "admin"
 	dbPass := "admin"
 	dbHost := "localhost"
-	dbPort := "5432"
+	dbPort := "5434"
 	dbName := "users_db"
 
 	connString := fmt.Sprintf(

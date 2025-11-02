@@ -27,12 +27,12 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 }
 
 type registerRequest struct {
-	Email    string `json:"Email" binding:"required, email"`
+	Email    string `json:"Email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
 }
 
 type loginRequest struct {
-	Email    string `json:"Email" binding:"required, email"`
+	Email    string `json:"Email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
 }
 
