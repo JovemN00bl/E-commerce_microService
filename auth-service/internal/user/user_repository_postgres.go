@@ -9,11 +9,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Repository interface {
-	Create(ctx context.Context, user *User) error
-	GetByEmail(ctx context.Context, email string) (*User, error)
-}
-
 type postgresRepositoy struct {
 	db *pgxpool.Pool
 }
