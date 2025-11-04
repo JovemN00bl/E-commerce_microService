@@ -11,8 +11,8 @@ type Product struct {
 	CreateAt      time.Time `json:"createAt"`
 }
 
-func NewProduct(id, name, description string, price float64, stockQuantity int) *Product {
-	return &Product{ID: id, Name: name,
+func NewProduct(name, description string, price float64, stockQuantity int) *Product {
+	return &Product{Name: name,
 		Description:   description,
 		Price:         price,
 		StockQuantity: stockQuantity,
