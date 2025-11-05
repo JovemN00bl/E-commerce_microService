@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  postres_users_db:
+  postgres_users_db:
     image: postgres:15-alpine
     container_name: 'postgres_users_db'
     ports:
@@ -11,7 +11,7 @@ services:
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=users_db
     volumes:
-      - postgres_users_data:/var/lib/postgresql/data
+      - postgres_users_data_v2:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U admin -d users_db" ]
       interval: 10s
@@ -22,13 +22,13 @@ services:
     image: postgres:15-alpine
     container_name: 'postgres_products_db'
     ports:
-      - "5433:5432"
+      - "5455:5432"
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=products_db
     volumes:
-      - postgres_products_data:/var/lib/postgresql/data
+      - postgres_products_data_v2:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin -d products_db"]
       interval: 10s
@@ -36,5 +36,5 @@ services:
       retries: 5
 
 volumes:
-  postgres_users_data:
-  postgres_products_data:
+  postgres_users_data_v2:
+  postgres_products_data_v2:
