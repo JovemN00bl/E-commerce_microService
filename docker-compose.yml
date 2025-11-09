@@ -35,6 +35,37 @@ services:
       timeout: 5s
       retries: 5
 
+  postgres_orders_db:
+    image: postgres:15-alpine
+    container_name: 'postgres_orders_db'
+    ports:
+      - "5456:5432"
+    environment:
+      - POSTGRES_USER = admin
+      - POSTGRES_PASSWORD= admin
+      - POSTGRES_DB = orders_db
+    volumes:
+      - postgres_orders_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d orders_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: "rabbitmq:3.12-management"
+    container_name: 'rabbitmq'
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/
+    environment:
+      - RABBITMQ_DEFAULT_USER= guest
+      - RABBITMQ_DEFAULT_PASS= guest
+
 volumes:
   postgres_users_data_v2:
   postgres_products_data_v2:
+  postgres_orders_data:
+  rabbitmq_data:
