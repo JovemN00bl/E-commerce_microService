@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package= "./pb";
+
+service ProductService {
+  rpc CheckStock (CheckStockRequest) returns (CheckStockResponse);
+}
+
+message CheckStockRequest {
+  string product_id = 1;
+}
+
+message CheckStockResponse {
+  double price =1 ;
+  bool in_stock = 2;
+}
