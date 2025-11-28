@@ -1,0 +1,20 @@
+```gitignore
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+main
+
+.idea/
+.vscode/
+*.swp
+
+.env
+*.env
+
+
+vendor/
+
+# Logs
+*.log
