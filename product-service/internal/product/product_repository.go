@@ -11,7 +11,7 @@ import (
 
 type Repository interface {
 	Create(ctx context.Context, product *Product) error
-	GetById(ctx context.Context, id int) (*Product, error)
+	GetById(ctx context.Context, id string) (*Product, error)
 	List(ctx context.Context) ([]*Product, error)
 }
 
@@ -49,7 +49,7 @@ func (r *postgresRepository) Create(ctx context.Context, product *Product) error
 	return nil
 }
 
-func (r *postgresRepository) GetById(ctx context.Context, id int) (*Product, error) {
+func (r *postgresRepository) GetById(ctx context.Context, id string) (*Product, error) {
 	query := `
 	SELECT id, name, description, price, stock_quantity, created_at
 	FROM products

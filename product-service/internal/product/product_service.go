@@ -7,7 +7,7 @@ import (
 
 type Service interface {
 	Create(ctx context.Context, name, description string, price float64, stock int) (*Product, error)
-	GetById(ctx context.Context, id int) (*Product, error)
+	GetById(ctx context.Context, id string) (*Product, error)
 	List(ctx context.Context) ([]*Product, error)
 }
 
@@ -46,7 +46,7 @@ func (s *service) Create(ctx context.Context, name, description string, price fl
 	return product, nil
 }
 
-func (s *service) GetById(ctx context.Context, id int) (*Product, error) {
+func (s *service) GetById(ctx context.Context, id string) (*Product, error) {
 	return s.repo.GetById(ctx, id)
 }
 

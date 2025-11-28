@@ -2,12 +2,15 @@ package main
 
 import (
 	"log"
+	"net"
 
 	"E-commerce_micro/product-service/internal/database"
+	"E-commerce_micro/product-service/internal/pb"
 	"E-commerce_micro/product-service/internal/product"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -26,9 +29,25 @@ func main() {
 
 	productRepo := product.NewPostgresRepository(dbPool)
 	log.Println("Repositório de produto inicializado.")
-
 	productService := product.NewService(productRepo)
 	log.Println("Serviço de produto inicializado.")
+
+	go func() {
+		grpcPort := ":50051"
+		lis, err := net.Listen("tcp", grpcPort)
+		if err != nil {
+			log.Fatalf("falha ao ouvir porta gRCP: %v", err)
+		}
+		grpcServer := grpc.NewServer()
+		productGrcpServer := product.NewGrcpServer(productService)
+		pb.RegisterProductServiceServer(grpcServer, productGrcpServer)
+
+		log.Printf("Servidor gRPC rodando na porta %s", grpcPort)
+		if err := grpcServer.Serve(lis); err != nil {
+			log.Fatalf("falha ao servir gRPC: %v", err)
+		}
+
+	}()
 
 	productHandler := product.NewHandler(productService)
 	log.Println("Handler de produto inicializado.")
