@@ -57,21 +57,30 @@ func main() {
 func createReverseProxy(target string) gin.HandlerFunc {
 	targetURL, err := url.Parse(target)
 	if err != nil {
-		log.Fatal("URL de destino do proxy invalida: %v", err)
-	}
-
-	proxy := httputil.NewSingleHostReverseProxy(targetURL)
-
-	proxy.Director = func(req *http.Request) {
-		req.Host = targetURL.Host
-		req.URL.Scheme = targetURL.Scheme
-		req.URL.Host = targetURL.Host
-
-		ginContext := req.Context().Value(gin.ContextKey).(*gin.Context)
-		req.URL.Path = ginContext.Param("proxyPath")
+		log.Fatalf("URL de destino do proxy inválida: %v", err)
 	}
 
 	return func(c *gin.Context) {
+
+		proxy := httputil.NewSingleHostReverseProxy(targetURL)
+
+		originalDirector := proxy.Director
+		proxy.Director = func(req *http.Request) {
+			originalDirector(req)
+
+			req.Host = targetURL.Host
+			req.URL.Scheme = targetURL.Scheme
+			req.URL.Host = targetURL.Host
+
+			path := c.Param("proxyPath")
+			req.URL.Path = path
+		}
+
+		proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+			log.Printf("Erro no Proxy Reverso: %v", err)
+			c.JSON(http.StatusBadGateway, gin.H{"error": "Serviço indisponível"})
+		}
+
 		proxy.ServeHTTP(c.Writer, c.Request)
 	}
 }

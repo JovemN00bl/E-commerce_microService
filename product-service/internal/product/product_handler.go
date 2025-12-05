@@ -28,8 +28,8 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 type createProductRequest struct {
 	Name        string  `json:"name" binding:"required"`
 	Description string  `json:"description"`
-	Price       float64 `json:"price" binding:"required, gt=0"`
-	Stock       int     `json:"stock" binding:"required, gt=0"`
+	Price       float64 `json:"price" binding:"required,gt=0"`
+	Stock       int     `json:"stock" binding:"required,gt=0"`
 }
 
 type errorResponse struct {
@@ -66,7 +66,7 @@ func (h *Handler) handleCreateProduct(c *gin.Context) {
 func (h *Handler) handleGetByID(c *gin.Context) {
 	productID, _ := strconv.Atoi(c.Param("id"))
 
-	product, err := h.service.GetById(c.Request.Context(), productID)
+	product, err := h.service.GetById(c.Request.Context(), strconv.Itoa(productID))
 	if err != nil {
 		if errors.Is(err, ErrProductNotFound) {
 			c.JSON(http.StatusNotFound, errorResponse{Error: "Produto não encontrado."})
