@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func main() {
@@ -32,6 +33,12 @@ func main() {
 	}
 	defer eventPublisher.Close()
 
+	rabbitMQConn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	if err != nil {
+		log.Fatalf("Falha ao conectar RabbitMQ para o Listener: %v", err)
+	}
+	defer rabbitMQConn.Close()
+
 	productGrpcUrl := "localhost:50051"
 	productClient, err := order.NewProductClient(productGrpcUrl)
 	if err != nil {
@@ -40,6 +47,8 @@ func main() {
 	defer productClient.Close()
 
 	orderRepo := order.NewPostgresRepository(dbPool)
+
+	order.StartListening(rabbitMQConn, orderRepo)
 
 	orderService := order.NewService(orderRepo, productClient, eventPublisher)
 

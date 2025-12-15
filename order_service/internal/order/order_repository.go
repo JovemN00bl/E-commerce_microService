@@ -12,6 +12,7 @@ import (
 type repository interface {
 	GetById(ctx context.Context, id string) (*Order, error)
 	Create(ctx context.Context, order *Order) error
+	UpdateStatus(ctx context.Context, id string, status OrderStatus) error
 }
 
 var ErrOrderNotFound = errors.New("Pedido não encontrado!")
@@ -101,4 +102,15 @@ func (r *postgresRepository) GetById(ctx context.Context, id string) (*Order, er
 	}
 
 	return order, nil
+}
+
+func (r *postgresRepository) UpdateStatus(ctx context.Context, id string, status OrderStatus) error {
+	query := `UPDATE orders SET status = $1 WHERE id = $2`
+	_, err := r.db.Exec(ctx, query, status, id)
+	if err != nil {
+		log.Printf("Erro ao atualizar status do pedido %s: %v", id, err)
+		return err
+	}
+	return nil
+
 }
