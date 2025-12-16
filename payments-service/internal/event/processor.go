@@ -25,7 +25,7 @@ func ProcessPayments(ch *amqp.Channel) {
 	)
 	failOnError(err, "Falha ao declarar fila order_created")
 
-	qApproved, err := ch.QueueDeclare(
+	_, err = ch.QueueDeclare(
 		"payment_approved",
 		true,
 		false, false, false, nil)
@@ -53,22 +53,34 @@ func ProcessPayments(ch *amqp.Channel) {
 
 			log.Printf("Pagamento Aprovado para Order Id: %s", event.OrderID)
 
-			publishPaymentApproved(ch, qApproved.Name, event)
+			publishPaymentApproved(ch, event.OrderID)
 			d.Ack(false)
 		}
 	}()
 	<-forever
 }
 
-func publishPaymentApproved(ch *amqp.Channel, queueName string, order OrderCreatedEvent) {
+func publishPaymentApproved(ch *amqp.Channel, orderID string) {
+
+	err := ch.ExchangeDeclare(
+		"payment_fanout",
+		"fanout",
+		true,
+		false, false, false, nil)
+
+	if err != nil {
+		log.Fatalf("Erro ao declarar exchange: %v", err)
+		return
+	}
+
 	payload := map[string]string{
-		"order_id":   order.OrderID,
+		"order_id":   orderID,
 		"status":     "PAID",
 		"updated_at": time.Now().Format(time.RFC3339),
 	}
 
 	body, _ := json.Marshal(payload)
-	err := ch.Publish("", queueName, false, false, amqp.Publishing{
+	err = ch.Publish("payment_fanout", "", false, false, amqp.Publishing{
 		ContentType: "application/json", Body: body,
 	})
 	if err != nil {
