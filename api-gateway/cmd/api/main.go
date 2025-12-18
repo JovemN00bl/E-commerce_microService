@@ -6,8 +6,10 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"time"
 
 	"E-commerce_micro/api-gateway/cmd/api/internal/auth"
+	"github.com/gin-contrib/cors"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -30,7 +32,16 @@ func main() {
 
 	router := gin.Default()
 
-	authMiddleware := auth.NewAuthMiddleware(jwtSecret)
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
+	authMiddleware := auth.AuthMiddleware()
 
 	proxyToAuth := createReverseProxy(authServiceURL)
 	proxyToProducts := createReverseProxy(productsServiceURL)
@@ -72,8 +83,7 @@ func createReverseProxy(target string) gin.HandlerFunc {
 			req.URL.Scheme = targetURL.Scheme
 			req.URL.Host = targetURL.Host
 
-			path := c.Param("proxyPath")
-			req.URL.Path = path
+			req.URL.Path = c.Request.URL.Path
 		}
 
 		proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
